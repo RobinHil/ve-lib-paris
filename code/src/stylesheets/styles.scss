@@ -1,0 +1,43 @@
+@import url('~leaflet/dist/leaflet.css');
+
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+header {
+    height: 10%;
+    text-align: center;
+    background-color: rgb(238, 110, 115);
+}
+
+#imgTitre {
+    height: 100%;
+    width: auto;
+    vertical-align: bottom;
+}
+
+#titre {
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 140%;
+    font-weight: bold;
+    font-style: italic;
+    height: 100%;
+    margin: 0;
+}
+
+#map {
+    height: 88%;
+}
+
+footer {
+    height: 2%;
+}
+
+#copyr {
+    margin: 0;
+    margin-left: 15%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 60%;
+}
