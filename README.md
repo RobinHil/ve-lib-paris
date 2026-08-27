@@ -18,12 +18,13 @@ availability from the [Paris open data](https://opendata.paris.fr/) platform.
 
 - JavaScript (ES6+), SCSS
 - Leaflet, with the `leaflet-fullscreen` and `leaflet.markercluster` plugins
-- Webpack 5, Babel, PostCSS, Sass
+- Webpack 5, Babel 8, PostCSS, Sass
 - Paris open data API (`velib-disponibilite-en-temps-reel`)
 
 ## Running it
 
-Requires Node.js 18 or later. All the source lives in `code/`.
+Requires Node.js 24 (the current LTS); see `code/.nvmrc`. All the source
+lives in `code/`.
 
 ```bash
 cd code

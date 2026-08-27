@@ -2,11 +2,17 @@ import * as L from 'leaflet'
 import 'leaflet-fullscreen'
 import 'leaflet.markercluster'
 
+// Imports ESM plutot que require() : le module est charge en ESM, et require
+// y renvoyait un objet module au lieu de l'URL de l'image.
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
+import markerIcon from 'leaflet/dist/images/marker-icon.png'
+import markerShadow from 'leaflet/dist/images/marker-shadow.png'
+
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+    iconRetinaUrl: markerIcon2x,
+    iconUrl: markerIcon,
+    shadowUrl: markerShadow,
 })
 
 // L'endpoint /records plafonne silencieusement à 100 résultats (limit=-1 est ignoré).
