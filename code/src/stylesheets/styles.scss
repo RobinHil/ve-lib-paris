@@ -1,4 +1,7 @@
 @import url('~leaflet/dist/leaflet.css');
+@import url('~leaflet-fullscreen/dist/leaflet.fullscreen.css');
+@import url('~leaflet.markercluster/dist/MarkerCluster.css');
+@import url('~leaflet.markercluster/dist/MarkerCluster.Default.css');
 
 html, body {
     margin: 0;
@@ -40,4 +43,27 @@ footer {
     margin-left: 15%;
     font-family: Arial, Helvetica, sans-serif;
     font-size: 60%;
+}
+
+#map {
+    position: relative;
+}
+
+#erreur {
+    position: absolute;
+    z-index: 1000;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    border-radius: 4px;
+    background-color: rgb(238, 110, 115);
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 85%;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+}
+
+#erreur[hidden] {
+    display: none;
 }
