@@ -23,11 +23,9 @@ availability from the [Paris open data](https://opendata.paris.fr/) platform.
 
 ## Running it
 
-Requires Node.js 24 (the current LTS); see `code/.nvmrc`. All the source
-lives in `code/`.
+Requires Node.js 24 (the current LTS); see `.nvmrc`.
 
 ```bash
-cd code
 npm install
 npm start          # development server on http://localhost:3000
 npm run build      # production build in dist/
@@ -45,12 +43,11 @@ npm run build      # production build in dist/
 ## Layout
 
 ```
-code/
-  src/
-    scripts/      app.js (map, markers, refresh loop), img.js
-    stylesheets/  styles.scss
-    template.html
-  webpack.common.js / webpack.dev.js / webpack.prod.js
+src/
+  scripts/      app.js (map, markers, refresh loop), img.js
+  stylesheets/  styles.scss
+  template.html
+webpack.common.js / webpack.dev.js / webpack.prod.js
 ```
 
 ## Credits
