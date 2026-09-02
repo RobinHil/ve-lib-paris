@@ -12,7 +12,13 @@
         </header>
         <div id="map"></div>
         <footer>
-            <p id="copyr">&copy;2025 Robin HILAIRE</p>
+            <!--
+                L'annee est renseignee au chargement par src/scripts/app.js.
+                Figee en dur, elle devient fausse le 1er janvier suivant sans que
+                personne ne le remarque. Le contenu ci-dessous n'est qu'un repli
+                pour le cas ou le script ne s'executerait pas.
+            -->
+            <p id="copyr">&copy;<span id="annee">2026</span> Robin HILAIRE | Donnees <a href="https://opendata.paris.fr/">Ville de Paris</a></p>
         </footer>
     </body>
 </html>
