@@ -1,0 +1,133 @@
+name: Pages
+
+# Velib Paris est un bundle webpack entierement client. Les stations viennent
+# de l'API Open Data de la Ville de Paris et les tuiles d'OpenStreetMap,
+# appelees directement depuis le navigateur en HTTPS : rien ne change en
+# passant du conteneur nginx a Pages.
+#
+# Rien a configurer cote chemin de base : output.publicPath reste sur "auto",
+# donc HtmlWebpackPlugin injecte "main.bundle.js" en relatif et les assets
+# aussi. Le site fonctionne sous n'importe quel sous-chemin, celui d'un site
+# de projet Pages comme la racine d'un domaine personnalise.
+#
+# Pages doit etre regle sur "GitHub Actions" dans Settings > Pages.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Construit le site et prouve qu'il vaut d'etre publie. Une pull request
+  # s'arrete ici : rien n'est publie depuis une branche.
+  build:
+    name: Build and check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      # `npm install` et non `npm ci`, et pas de cache npm : .gitignore exclut
+      # package-lock.json, il n'y a donc aucun lockfile a respecter ni de quoi
+      # calculer une cle de cache. La contrepartie est reelle - les plages `^`
+      # sont resolues a neuf a chaque execution, donc un build peut casser sans
+      # qu'une ligne du depot ait bouge. Committer le lockfile permettrait de
+      # passer a `npm ci` avec `cache: npm`.
+      - run: npm install
+
+      - uses: actions/configure-pages@v6
+        id: pages
+
+      - run: npm run build
+
+      # Ce que le build est cense avoir produit, verifie plutot que suppose.
+      - name: Assert the build is complete
+        run: |
+          set -euo pipefail
+          cd dist
+
+          for file in index.html main.bundle.js favicon.ico; do
+            test -f "$file" || { echo "missing: $file"; exit 1; }
+          done
+
+          grep -q "<title>Vélib Paris</title>" index.html
+
+          # Les references de la page sont relatives : un chemin commencant par
+          # un slash signifierait que publicPath a change et casserait le site
+          # sous un sous-chemin.
+          if grep -oE '(src|href)="/[^"]*"' index.html; then
+            echo "reference absolue dans index.html : incompatible avec un sous-chemin"
+            exit 1
+          fi
+
+          echo "dist is complete:"
+          du -sh .
+          ls -1
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  # Publie ce que le build a verifie. Pages exige ces permissions et cet
+  # environnement ; le groupe de concurrence est celui que partagent les
+  # deploiements Pages, et il n'annule pas un deploiement en cours.
+  deploy:
+    name: Deploy to GitHub Pages
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  # Repose les memes questions au site publie, par le reseau : un deploiement
+  # qui se declare reussi puis sert autre chose, ca arrive.
+  verify:
+    name: Verify what is published
+    if: github.event_name != 'pull_request'
+    needs: deploy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Fetch the published page
+        env:
+          SITE: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          set -euo pipefail
+          site="${SITE%/}"
+          echo "site: $site"
+
+          for attempt in 1 2 3 4 5; do
+            if curl -fsS "$site/" -o /tmp/index.html; then break; fi
+            echo "attempt $attempt failed, waiting"
+            sleep 10
+          done
+
+          grep -q "<title>Vélib Paris</title>" /tmp/index.html
+          curl -fsS -o /dev/null "$site/main.bundle.js"
+
+          echo "verified $site"
